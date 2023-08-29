@@ -22,9 +22,7 @@ CREATE TABLE users(
 );
 
 
-INSERT INTO users (user_name,
-user_password) VALUES ('Marko',
-'ert456');
+INSERT INTO users (user_name, user_password) VALUES ('Milan', '$2b$10$2455MFe1nE9FZ9fn1xQyION3JFODhW1//ywKUOCeleFdJCU6FGxwy');
 
 
 INSERT INTO fishing_report (created_at, spot, water_level, weather, 
