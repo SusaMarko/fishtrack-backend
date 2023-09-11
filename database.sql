@@ -25,9 +25,9 @@ CREATE TABLE users(
 INSERT INTO users (user_name, user_password) VALUES ('Milan', '$2b$10$2455MFe1nE9FZ9fn1xQyION3JFODhW1//ywKUOCeleFdJCU6FGxwy');
 
 
-INSERT INTO fishing_report (created_at, spot, water_level, weather, 
+INSERT INTO fishing_report (user_id, created_at, spot, water_level, weather, 
 type_of_fishing, bait, food,the_catch)
-VALUES ('2023-05-26 12:34:56', 'kej blok 70', 415,
-'kisan dan', 'plovak', 'beli crvi', 'gica mix crvena kesa 500g',
-'10 plotica ko dlan i 15 nosara ko dlan'
+VALUES ('c828df7f-6fb6-4701-8a7d-926d681319e1', '2023-06-11 11:15:32', 'brodotehnika', 401,
+'suncano', 'fider', 'beli crvi', 'gica mix zuta kesa 500g',
+'11 plotica i 3 babuske'
 );

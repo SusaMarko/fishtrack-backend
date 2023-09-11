@@ -20,8 +20,8 @@ router.get("/fishing-reports/search", authorization, async (req, res) => {
     const { term } = req.query;
 
     const fishingReports = await pool.query(
-      "SELECT * FROM fishing_report WHERE user_id = $1 AND created_at || spot || water_level || weather || type_of_fishing || bait || food || the_catch LIKE $2",
-      [req.user, `%${term}%`]
+      "SELECT * FROM fishing_report WHERE created_at || spot || water_level || weather || type_of_fishing || bait || food || the_catch LIKE $1",
+      [`%${term}%`]
     );
 
     res.json(fishingReports.rows);
@@ -30,7 +30,7 @@ router.get("/fishing-reports/search", authorization, async (req, res) => {
   }
 });
 
-router.post("/fishing-reports", async (req, res) => {
+router.post("/fishing-reports", authorization, async (req, res) => {
   try {
     const {
       createdAt,
@@ -56,6 +56,7 @@ router.post("/fishing-reports", async (req, res) => {
         theCatch,
       ]
     );
+    console.log(req.user);
     res.status(201).json(newFishingReport.rows[0]);
   } catch (err) {
     res.status(503);
@@ -87,10 +88,9 @@ router.put("/fishing-reports/:id", authorization, async (req, res) => {
 
 router.delete("/fishing-reports/:id", authorization, async (req, res) => {
   try {
-    await pool.query(
-      "DELETE FROM fishing_report WHERE id = $1 AND user_id = $2 RETURNING *",
-      [req.params.id, req.user]
-    );
+    await pool.query("DELETE FROM fishing_report WHERE id = $1 RETURNING *", [
+      req.params.id,
+    ]);
     res.status(200).json("deleted");
   } catch (err) {
     res.status(503);
