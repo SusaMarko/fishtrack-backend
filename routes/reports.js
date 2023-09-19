@@ -5,7 +5,7 @@ const authorization = require("../middleware/authorization");
 router.get("/", authorization, async (req, res) => {
   try {
     const user = await pool.query(
-      "SELECT u.user_id, u.user_name, f.id, f.created_at, f.spot, f.water_level, f.weather, f.type_of_fishing, f.bait, f.food, f.the_catch FROM users AS u LEFT JOIN fishing_report AS f ON u.user_id = f.user_id"
+      "SELECT u.user_id, u.user_name, f.id, f.created_at, f.spot, f.water_level, f.weather, f.type_of_fishing, f.bait, f.food, f.the_catch FROM users AS u JOIN fishing_report AS f ON u.user_id = f.user_id"
     );
 
     res.json(user.rows);
@@ -65,17 +65,18 @@ router.post("/fishing-reports", authorization, async (req, res) => {
 
 router.put("/fishing-reports/:id", authorization, async (req, res) => {
   try {
+    console.log(req.body);
     const updatedFishingReport = await pool.query(
       "UPDATE fishing_report SET created_at = $1, spot = $2, water_level = $3, weather = $4, type_of_fishing = $5, bait = $6, food = $7, the_catch = $8 WHERE id = $9 AND user_id = $10 RETURNING *",
       [
-        req.body.created_at,
+        req.body.createdAt,
         req.body.spot,
-        req.body.water_level,
+        req.body.waterLevel,
         req.body.weather,
-        req.body.type_of_fishing,
+        req.body.typeOfFishing,
         req.body.bait,
         req.body.food,
-        req.body.the_catch,
+        req.body.theCatch,
         req.params.id,
         req.user,
       ]
