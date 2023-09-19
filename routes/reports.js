@@ -65,7 +65,6 @@ router.post("/fishing-reports", authorization, async (req, res) => {
 
 router.put("/fishing-reports/:id", authorization, async (req, res) => {
   try {
-    console.log(req.body);
     const updatedFishingReport = await pool.query(
       "UPDATE fishing_report SET created_at = $1, spot = $2, water_level = $3, weather = $4, type_of_fishing = $5, bait = $6, food = $7, the_catch = $8 WHERE id = $9 AND user_id = $10 RETURNING *",
       [
