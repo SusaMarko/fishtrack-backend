@@ -21,6 +21,17 @@ CREATE TABLE users(
     user_password VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE comments(
+    id SERIAL PRIMARY KEY,
+    user_id UUID,
+    fishing_report_id INTEGER,
+    created_at TIMESTAMP,
+    comment_text VARCHAR(255),
+    likes INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (fishing_report_id) REFERENCES fishing_report(id)
+);
+
 
 INSERT INTO users (user_name, user_password) VALUES ('Milan', '$2b$10$2455MFe1nE9FZ9fn1xQyION3JFODhW1//ywKUOCeleFdJCU6FGxwy');
 
@@ -31,3 +42,6 @@ VALUES ('c828df7f-6fb6-4701-8a7d-926d681319e1', '2023-06-11 11:15:32', 'brodoteh
 'suncano', 'fider', 'beli crvi', 'gica mix zuta kesa 500g',
 '11 plotica i 3 babuske'
 );
+
+INSERT INTO comments (user_id, fishing_report_id, created_at, comment_text, likes)
+VALUES ('c828df7f-6fb6-4701-8a7d-926d681319e1', '20', '2023-06-11 11:15:32', 'svaka cast', 6);

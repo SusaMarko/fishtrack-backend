@@ -102,4 +102,22 @@ router.get("/fishing-reports", async (req, res) => {
   res.json(fishingReport.rows);
 });
 
+router.post(
+  "/fishing-reports/:id/comments",
+  authorization,
+  async (req, res) => {
+    try {
+      const { createdAt, commentText, likes } = req.body;
+      const newComment = await pool.query(
+        "INSERT INTO comments (user_id, fishing_report_id, created_at, comment_text, likes) VALUES ($1,$2,$3,$4,$5) RETURNING *",
+        [req.user, req.params.id, createdAt, commentText, likes]
+      );
+      console.log(req.user);
+      res.status(201).json(newComment.rows[0]);
+    } catch (err) {
+      res.status(503);
+    }
+  }
+);
+
 module.exports = router;
