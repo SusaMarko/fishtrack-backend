@@ -120,4 +120,73 @@ router.post(
   }
 );
 
+router.delete("/comments/:id", authorization, async (req, res) => {
+  try {
+    const newComment = await pool.query(
+      "DELETE FROM comments WHERE id = $1 RETURNING *",
+      [req.params.id]
+    );
+    console.log(req.user);
+    res.status(201).json(newComment.rows[0]);
+  } catch (err) {
+    res.status(503);
+  }
+});
+
+router.put("/comments/:id", authorization, async (req, res) => {
+  try {
+    const updatedComment = await pool.query(
+      "UPDATE comments SET comment_text = $1 WHERE id = $2 RETURNING *",
+      [req.body.commentText, req.params.id]
+    );
+
+    res.status(200).json(updatedComment.rows[0]);
+  } catch (err) {
+    res.status(503);
+  }
+});
+
+router.get("/fishing-reports/:id/comments", authorization, async (req, res) => {
+  try {
+    const comments = await pool.query(
+      "SELECT u.user_name, c.created_at, c.comment_text, c.likes FROM comments as c JOIN users as u ON c.user_id = u.user_id WHERE c.fishing_report_id = $1 ORDER BY c.created_at DESC",
+      [req.params.id]
+    );
+
+    res.json(comments.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+router.put("/comments/:id/likes", authorization, async (req, res) => {
+  try {
+    pool.query("BEGIN");
+    const currentComment = await pool.query(
+      "SELECT likes FROM comments where id = $1",
+      [req.params.id]
+    );
+
+    let newLikes = currentComment.rows[0].likes;
+
+    if (req.query.increment === "true") {
+      newLikes++;
+    } else {
+      newLikes--;
+    }
+
+    const updatedComment = await pool.query(
+      "UPDATE comments SET likes = $1 WHERE id = $2 RETURNING *",
+      [newLikes, req.params.id]
+    );
+    pool.query("COMMIT");
+
+    res.status(200).json(updatedComment.rows[0]);
+  } catch (err) {
+    pool.query("ROLLBACK");
+    res.status(503);
+  }
+});
+
 module.exports = router;
