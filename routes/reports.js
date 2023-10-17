@@ -149,7 +149,7 @@ router.put("/comments/:id", authorization, async (req, res) => {
 router.get("/fishing-reports/:id/comments", authorization, async (req, res) => {
   try {
     const comments = await pool.query(
-      "SELECT u.user_name, c.created_at, c.comment_text, c.likes FROM comments as c JOIN users as u ON c.user_id = u.user_id WHERE c.fishing_report_id = $1 ORDER BY c.created_at DESC",
+      "SELECT u.user_id, u.user_name, c.id, c.created_at, c.comment_text, c.likes FROM comments as c JOIN users as u ON c.user_id = u.user_id WHERE c.fishing_report_id = $1 ORDER BY c.created_at DESC",
       [req.params.id]
     );
 
