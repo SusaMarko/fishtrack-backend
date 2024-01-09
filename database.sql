@@ -14,7 +14,6 @@ CREATE TABLE fishing_report(
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
-
 CREATE TABLE users(
     user_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_name VARCHAR(255) NOT NULL,
@@ -32,9 +31,7 @@ CREATE TABLE comments(
     FOREIGN KEY (fishing_report_id) REFERENCES fishing_report(id)
 );
 
-
 INSERT INTO users (user_name, user_password) VALUES ('Milan', '$2b$10$2455MFe1nE9FZ9fn1xQyION3JFODhW1//ywKUOCeleFdJCU6FGxwy');
-
 
 INSERT INTO fishing_report (user_id, created_at, spot, water_level, weather, 
 type_of_fishing, bait, food,the_catch)

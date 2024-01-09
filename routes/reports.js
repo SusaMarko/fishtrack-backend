@@ -1,11 +1,15 @@
 const router = require("express").Router();
 const pool = require("../db");
 const authorization = require("../middleware/authorization");
+const multer = require("multer")
+
+const storage = multer.memoryStorage()
+const uploads = multer({ storage })
 
 router.get("/", authorization, async (req, res) => {
   try {
     const user = await pool.query(
-      "SELECT u.user_id, u.user_name, f.id, f.created_at, f.spot, f.water_level, f.weather, f.type_of_fishing, f.bait, f.food, f.the_catch FROM users AS u JOIN fishing_report AS f ON u.user_id = f.user_id"
+      "SELECT u.user_id, u.user_name, f.id, f.created_at, f.spot, f.water_level, f.weather, f.type_of_fishing, f.bait, f.food, f.the_catch, f.image FROM users AS u JOIN fishing_report AS f ON u.user_id = f.user_id"
     );
 
     res.json(user.rows);
@@ -30,7 +34,7 @@ router.get("/fishing-reports/search", authorization, async (req, res) => {
   }
 });
 
-router.post("/fishing-reports", authorization, async (req, res) => {
+router.post("/fishing-reports", authorization, uploads.single("image"), async (req, res) => {
   try {
     const {
       createdAt,
@@ -42,11 +46,13 @@ router.post("/fishing-reports", authorization, async (req, res) => {
       food,
       theCatch,
     } = req.body;
+
+    let image = req.file?.buffer;
     const newFishingReport = await pool.query(
-      "INSERT INTO fishing_report (user_id, created_at, spot, water_level, weather, type_of_fishing, bait, food, the_catch) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *",
+      "INSERT INTO fishing_report (user_id, created_at, spot, water_level, weather, type_of_fishing, bait, food, the_catch, image) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",
       [
         req.user,
-        createdAt,
+        new Date(createdAt),
         spot,
         waterLevel,
         weather,
@@ -54,9 +60,9 @@ router.post("/fishing-reports", authorization, async (req, res) => {
         bait,
         food,
         theCatch,
+        image,
       ]
     );
-    console.log(req.user);
     res.status(201).json(newFishingReport.rows[0]);
   } catch (err) {
     res.status(503);
@@ -88,10 +94,13 @@ router.put("/fishing-reports/:id", authorization, async (req, res) => {
 
 router.delete("/fishing-reports/:id", authorization, async (req, res) => {
   try {
-    await pool.query("DELETE FROM fishing_report WHERE id = $1 RETURNING *", [
+    await pool.query("DELETE FROM comments WHERE fishing_report_id = $1", [
+      req.params.id,
+    ])
+    const deletedFishingReport = await pool.query("DELETE FROM fishing_report WHERE id = $1 RETURNING *", [
       req.params.id,
     ]);
-    res.status(200).json("deleted");
+    res.status(200).json(deletedFishingReport);
   } catch (err) {
     res.status(503);
   }
@@ -112,7 +121,6 @@ router.post(
         "INSERT INTO comments (user_id, fishing_report_id, created_at, comment_text, likes) VALUES ($1,$2,$3,$4,$5) RETURNING *",
         [req.user, req.params.id, createdAt, commentText, likes]
       );
-      console.log(req.user);
       res.status(201).json(newComment.rows[0]);
     } catch (err) {
       res.status(503);
@@ -126,7 +134,6 @@ router.delete("/comments/:id", authorization, async (req, res) => {
       "DELETE FROM comments WHERE id = $1 RETURNING *",
       [req.params.id]
     );
-    console.log(req.user);
     res.status(201).json(newComment.rows[0]);
   } catch (err) {
     res.status(503);
@@ -149,7 +156,7 @@ router.put("/comments/:id", authorization, async (req, res) => {
 router.get("/fishing-reports/:id/comments", authorization, async (req, res) => {
   try {
     const comments = await pool.query(
-      "SELECT u.user_id, u.user_name, c.id, c.created_at, c.comment_text, c.likes FROM comments as c JOIN users as u ON c.user_id = u.user_id WHERE c.fishing_report_id = $1 ORDER BY c.created_at DESC",
+      "SELECT u.user_id, u.user_name, c.id, c.created_at, c.comment_text, c.likes FROM comments AS c JOIN users AS u ON c.user_id = u.user_id WHERE c.fishing_report_id = $1 ORDER BY c.created_at DESC",
       [req.params.id]
     );
 
