@@ -11,6 +11,7 @@ CREATE TABLE fishing_report(
     bait VARCHAR(255),
     food VARCHAR(255),
     the_catch VARCHAR(255),
+    image BYTEA,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
