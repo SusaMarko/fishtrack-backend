@@ -32,7 +32,8 @@ CREATE TABLE comments(
     FOREIGN KEY (fishing_report_id) REFERENCES fishing_report(id)
 );
 
-INSERT INTO users (user_name, user_password) VALUES ('Milan', '$2b$10$2455MFe1nE9FZ9fn1xQyION3JFODhW1//ywKUOCeleFdJCU6FGxwy');
+INSERT INTO users (user_name, user_password) VALUES ('Pera', '$2b$10$2455MFe1nE9FZ9fn1xQyION3JFODhW1//ywKUOCeleFdJCU6FGxwy');
+INSERT INTO users (user_name, user_password) VALUES ('Zika', '$2b$10$D5NuoFwE9FHQzbY/SICPK.JGCn1Ars0sObegzzIyBHq4CV3Qxkatq');
 
 INSERT INTO fishing_report (user_id, created_at, spot, water_level, weather, 
 type_of_fishing, bait, food,the_catch)
