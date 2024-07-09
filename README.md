@@ -1,7 +1,6 @@
 # FishTrack backend - API for manipulating fishing reports
 
-FishTrack backend is a React PWA that uses [FishTrack backend](https://github.com/SusaMarko/fishtrack-backend) in order to
-provide user the option of taking a picture of a fishing spot and manipulating fishing reports and commenting.
+FishTrack backend is a Node app that provides users the API endpoints that allow manipulating fishing reports and comments.
 
 ## Running locally
 
