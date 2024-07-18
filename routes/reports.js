@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const pool = require("../db");
 const authorization = require("../middleware/authorization");
-const multer = require("multer")
+const multer = require("multer");
 
-const storage = multer.memoryStorage()
-const uploads = multer({ storage })
+const storage = multer.memoryStorage();
+const uploads = multer({ storage });
 
 router.get("/", authorization, async (req, res) => {
   try {
@@ -34,25 +34,14 @@ router.get("/fishing-reports/search", authorization, async (req, res) => {
   }
 });
 
-router.post("/fishing-reports", authorization, uploads.single("image"), async (req, res) => {
-  try {
-    const {
-      createdAt,
-      spot,
-      waterLevel,
-      weather,
-      typeOfFishing,
-      bait,
-      food,
-      theCatch,
-    } = req.body;
-
-    let image = req.file?.buffer;
-    const newFishingReport = await pool.query(
-      "INSERT INTO fishing_report (user_id, created_at, spot, water_level, weather, type_of_fishing, bait, food, the_catch, image) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",
-      [
-        req.user,
-        new Date(createdAt),
+router.post(
+  "/fishing-reports",
+  authorization,
+  uploads.single("image"),
+  async (req, res) => {
+    try {
+      const {
+        createdAt,
         spot,
         waterLevel,
         weather,
@@ -60,14 +49,30 @@ router.post("/fishing-reports", authorization, uploads.single("image"), async (r
         bait,
         food,
         theCatch,
-        image,
-      ]
-    );
-    res.status(201).json(newFishingReport.rows[0]);
-  } catch (err) {
-    res.status(503);
+      } = req.body;
+
+      let image = req.file?.buffer;
+      const newFishingReport = await pool.query(
+        "INSERT INTO fishing_report (user_id, created_at, spot, water_level, weather, type_of_fishing, bait, food, the_catch, image) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",
+        [
+          req.user,
+          new Date(createdAt),
+          spot,
+          waterLevel,
+          weather,
+          typeOfFishing,
+          bait,
+          food,
+          theCatch,
+          image,
+        ]
+      );
+      res.status(201).json(newFishingReport.rows[0]);
+    } catch (err) {
+      res.status(503);
+    }
   }
-});
+);
 
 router.put("/fishing-reports/:id", authorization, async (req, res) => {
   try {
@@ -96,10 +101,11 @@ router.delete("/fishing-reports/:id", authorization, async (req, res) => {
   try {
     await pool.query("DELETE FROM comments WHERE fishing_report_id = $1", [
       req.params.id,
-    ])
-    const deletedFishingReport = await pool.query("DELETE FROM fishing_report WHERE id = $1 RETURNING *", [
-      req.params.id,
     ]);
+    const deletedFishingReport = await pool.query(
+      "DELETE FROM fishing_report WHERE id = $1 RETURNING *",
+      [req.params.id]
+    );
     res.status(200).json(deletedFishingReport);
   } catch (err) {
     res.status(503);
@@ -116,10 +122,10 @@ router.post(
   authorization,
   async (req, res) => {
     try {
-      const { createdAt, commentText, likes } = req.body;
+      const { commentText } = req.body;
       const newComment = await pool.query(
         "INSERT INTO comments (user_id, fishing_report_id, created_at, comment_text, likes) VALUES ($1,$2,$3,$4,$5) RETURNING *",
-        [req.user, req.params.id, createdAt, commentText, likes]
+        [req.user, req.params.id, new Date(), commentText, 0]
       );
       res.status(201).json(newComment.rows[0]);
     } catch (err) {
